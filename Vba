@@ -1,0 +1,25 @@
+Sub UpdateSheetIndex()
+    Dim idxSheet As Worksheet
+    Dim ws As Worksheet
+    Dim i As Long
+    
+    ' Set reference to the Index sheet
+    Set idxSheet = ThisWorkbook.Sheets("Index")
+    idxSheet.Cells.Clear ' Clear existing content on Index sheet
+
+    ' Loop through each worksheet and create a hyperlink
+    i = 1
+    For Each ws In ThisWorkbook.Worksheets
+        If ws.Name <> idxSheet.Name Then
+            idxSheet.Hyperlinks.Add _
+                Anchor:=idxSheet.Cells(i, 1), _
+                Address:="", _
+                SubAddress:="'" & ws.Name & "'!A1", _
+                TextToDisplay:=ws.Name
+            i = i + 1
+        End If
+    Next ws
+
+    ' AutoFit the column with the sheet names
+    idxSheet.Columns(1).AutoFit
+End Sub
