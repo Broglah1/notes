@@ -1,0 +1,31 @@
+SCCM Architecture Documentation
+Overview
+This document outlines the architecture of our current System Center Configuration Manager (SCCM) setup, detailing the roles of each server, their interactions, and plans for future expansion. The SCCM environment is designed to manage and deploy software updates, applications, and configurations across our network efficiently.
+
+Current Architecture
+Server Roles and Descriptions
+Primary Site Server (MANPS01)
+
+Role: Serves as the central management point for the SCCM hierarchy.
+Installed Roles: Management Point, Distribution Point.
+Functionality: Manages policies, client operations, inventory, and software distribution.
+Database Server (MANDB01)
+
+Role: Hosts the SQL database for SCCM, storing configuration data, collections, inventory, and other information necessary for SCCM operations.
+Functionality: Ensures data integrity and performance for SCCM operations.
+Software Update Point (SUP) Server (MANSUP01)
+
+Role: Integrates with Windows Server Update Services (WSUS) to manage software updates.
+Functionality: Downloads updates from Microsoft Update, provides them to clients based on approval and deployment rules.
+System Interactions
+The Primary Site Server (MANPS01) communicates with the SUP Server (MANSUP01) to manage software updates, leveraging WSUS installed on MANSUP01.
+MANPS01 also interacts with the Database Server (MANDB01) for configuration data and operations information.
+All devices within defined boundaries report to MANPS01 for management and updates, with fallback configurations pointing to the primary site for comprehensive coverage.
+Network Diagram
+(Here, you can include a simple network diagram illustrating the connections between MANPS01, MANDB01, and MANSUP01, as well as their connections to the managed devices. Utilize Confluence's drawing tools or attach a diagram created with external software.)
+
+Future Expansion Plans
+Additional Management Points: To accommodate growth and manage servers across other domains efficiently, we plan to deploy additional management points. These will facilitate localized management and reduce the load on the primary site server, enhancing overall system performance and scalability.
+Domain Expansion: With the introduction of new management points, the SCCM architecture will extend to cover additional domains, ensuring comprehensive management and update deployment across the organization.
+Conclusion
+This document provides a snapshot of our current SCCM architecture and outlines the roadmap for future expansions. As our organization grows, so will our SCCM environment, adapting to new challenges and requirements to maintain optimal performance and management capabilities.
