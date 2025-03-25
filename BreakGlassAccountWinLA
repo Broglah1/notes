@@ -1,0 +1,46 @@
+#Add dotnet assembly for generating secure passwords.
+Add-Type -AssemblyName System.Web
+#List of server hostnames to action against.
+$hostnames = @("backup")
+
+function Create-BreakGlassAccount {
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Hostname
+    )
+    $username = "$hostname-breakglass"
+    #Generate a random password (40 characters long with 5 of those being special)
+    $password = [System.Web.Security.Membership]::GeneratePassword(40, 5)
+    #Create the new local administrator account
+    $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+    New-LocalUser -Name $username -Password $securePassword -FullName "Break Glass Admin Account" -Description "Emergency administrator account" -AccountNeverExpires
+
+    #Add the user to the local Administrators group
+    Add-LocalGroupMember -Group "Administrators" -Member $username
+
+    #Return the created username and password
+    return @{Username = $username; Password = $password}
+}
+
+#Process each hostname
+foreach ($hostname in $hostnames) {
+    try {
+        #Create a new PSSession to the remote host
+        $session = New-PSSession -ComputerName $hostname -ErrorAction Stop
+
+        #Invoke the above function on the remote host
+        $result = Invoke-Command -Session $session -ScriptBlock ${function:Create-BreakGlassAccount} -ArgumentList $hostname
+
+        #Output the results
+        Write-Host "Created new local administrator account on $($hostname)" -ForegroundColor Green
+        Write-Host "Username: $($result.Username)"
+        Write-Host "Password: $($result.Password)"
+        Write-Host "Please store this information securely." -ForegroundColor Yellow
+
+        # Close the PSSession
+        Remove-PSSession -Session $session
+    }
+    catch {
+        Write-Host "Failed to create account on $hostname. Error: $_" -ForegroundColor Red
+    }
+}
